@@ -1,0 +1,14 @@
+.ExpenseDetailsText{
+    font-size: smaller;
+}
+
+.css-1elwnq4-MuiPaper-root-MuiAccordion-root{
+    background-color: #ffffff;
+    margin-bottom: 10px;
+    border: 0.1px solid rgb(237, 238, 238);
+    border-radius: 12px !important;
+}
+
+.css-1elwnq4-MuiPaper-root-MuiAccordion-root:before{
+    height: 0px;
+}

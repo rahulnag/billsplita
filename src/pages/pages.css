@@ -1,0 +1,97 @@
+.GroupNameInputBox{
+    margin-top: 30px;
+    height: 30px;
+    width: 290px;
+    padding: 5px;
+    border-radius: 10px;
+    border:0.2px solid rgb(220, 220, 220)
+}
+
+.CreateGroupButton{
+    margin-top: 10px;
+    width: 180px;
+  height: 30px;
+  outline: 0;
+  border: 0px;
+  border-radius: 20px;
+  background-color: rgba(223, 230, 232, 0.345);
+  border: 1px solid rgb(189, 189, 189);
+}
+.CreateGroupButton:hover{
+    background-color: blueviolet;
+    color: #ffffff;
+    border:2px solid #1dd939
+}
+.SelectedGroup{
+    background-color: rgb(245, 128, 247);
+}
+.MyGroupButtons{
+    width: 100px;
+    height: 30px;
+    outline: 0;
+    border: 0px;
+    border-radius: 20px;
+    margin: 5px;
+}
+.MyGroupPageSmallText{
+    font-size: smaller;
+    color: #4e4e4e;
+}
+
+.AdduserInputBox{
+    margin-top: 10px;
+    height: 20px;
+    width: 230px;
+    padding: 5px;
+    border-radius: 10px;
+    border:0.2px solid rgb(220, 220, 220)
+}
+.AddUserButton{
+    background-color: rgba(223, 230, 232, 0.345);
+    margin-top: 10px;
+    width: 90px;
+    height: 30px;
+    outline: 0;
+    border: 0;
+    border-radius: 20px;
+    border: 1px solid rgb(189, 189, 189);
+}
+.AddUserButton:hover{
+    background-color: blueviolet;
+    color: #ffffff;
+    border:2px solid #1dd939
+}
+.GroupContainer{
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    max-height: 100vh;
+}
+.GroupItems{
+    height: 87vh;
+}
+.GroupItem-1{
+    flex: 1;
+    position: sticky;
+
+}
+.GroupItem-2{
+    flex:2;
+    /* position: absolute; */
+    /* top: 10%; right: 0; bottom: 0; */
+    /* left:0; */
+    overflow-y: scroll;
+
+}
+.AmountInputBox{
+    height: 15px;
+    width: 80px;
+    padding: 4px;
+    border-radius: 10px;
+    border:0.2px solid rgb(220, 220, 220)
+}
+
+/* input:focus {
+    outline: 0.1px solid grey;
+    height:20px
+  } */
