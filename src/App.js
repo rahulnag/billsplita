@@ -53,7 +53,7 @@ function App() {
           </div>
         </div>
         <Divider style={{ marginTop: "3px" }} />
-        <div style={{ padding: "0 20px 10px 20px" }}>
+        <div style={{ padding: "0 20px 10px 20px", height: "85vh" }}>
           <Routes>
             <Route
               exact
