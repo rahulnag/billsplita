@@ -4,7 +4,7 @@ import { getDatabase, ref, set, child, get, push } from "firebase/database";
 import { db } from "../config";
 const Home = () => {
   const { googleSignIn, logOut, user } = React.useContext(AuthContext);
-  // console.log(user)
+  console.log(user);
   const [groupname, setGroupName] = React.useState("");
   const CreateGroup = () => {
     const dbRef = ref(getDatabase());
@@ -40,7 +40,7 @@ const Home = () => {
 
   return (
     <div style={{ textAlign: "center" }}>
-      <h1>Welcome To BillSplita</h1>
+      <h1>{`Welcome ${user.email.split("@")[0]} To BillSplita`}</h1>
       <input
         className="GroupNameInputBox"
         onChange={(e) => setGroupName(e.target.value)}

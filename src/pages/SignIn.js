@@ -30,6 +30,7 @@ const SignIn = () => {
           if (snapshot.exists()) {
             setApiCallInProgress(false);
             navigate("/");
+            document.getElementById("signinlink").style.display = "none";
           } else {
             console.log("No data available");
             set(
@@ -41,6 +42,7 @@ const SignIn = () => {
             );
             console.log(user.uid);
             navigate("/");
+            document.getElementById("signinlink").style.display = "hidden";
           }
         })
         .catch((error) => {
@@ -52,9 +54,23 @@ const SignIn = () => {
     };
   }, [user]);
   return apicallinprogress == false ? (
-    <div>
-      <h1>Welcome to BillSplita</h1>
-      <GoogleButton onClick={handleGoogleSignIn} />
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        flexDirection: "column",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{ fontSize: "2rem", textAlign: "center", marginBottom: "20px" }}
+      >
+        Welcome to BillSplita
+      </div>
+
+      <div>
+        <GoogleButton onClick={handleGoogleSignIn} />
+      </div>
     </div>
   ) : (
     <h1>validating user....</h1>

@@ -22,6 +22,7 @@ function App() {
             display: "flex",
             flexDirection: "row",
             justifyContent: "space-between",
+            paddingTop: "20px",
           }}
         >
           <div>
@@ -45,49 +46,52 @@ function App() {
             </Link>
           </div>
           <div>
-            {console.log(AuthContext)}
-            <Link to="/signin">SignIn</Link>
+            <Link id="signinlink" to="/signin">
+              SignIn
+            </Link>
             <Link to="/signout">Signout</Link>
           </div>
         </div>
         <Divider style={{ marginTop: "3px" }} />
-        <Routes>
-          <Route
-            exact
-            path="/"
-            element={
-              <Protected>
-                <Home />
-              </Protected>
-            }
-          />
-          <Route
-            exact
-            path="/home"
-            element={
-              <Protected>
-                <Home />
-              </Protected>
-            }
-          />
-          <Route path="/signin" element={<SignIn />} />
-          <Route
-            path="/signout"
-            element={
-              <Protected>
-                <SignOut />
-              </Protected>
-            }
-          />
-          <Route
-            path="/groups"
-            element={
-              <Protected>
-                <Groups />
-              </Protected>
-            }
-          />
-        </Routes>
+        <div style={{ padding: "0 20px 10px 20px" }}>
+          <Routes>
+            <Route
+              exact
+              path="/"
+              element={
+                <Protected>
+                  <Home />
+                </Protected>
+              }
+            />
+            <Route
+              exact
+              path="/home"
+              element={
+                <Protected>
+                  <Home />
+                </Protected>
+              }
+            />
+            <Route path="/signin" element={<SignIn />} />
+            <Route
+              path="/signout"
+              element={
+                <Protected>
+                  <SignOut />
+                </Protected>
+              }
+            />
+            <Route
+              path="/groups"
+              element={
+                <Protected>
+                  <Groups />
+                </Protected>
+              }
+            />
+          </Routes>
+        </div>
       </AuthProvider>
     </div>
   );

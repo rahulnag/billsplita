@@ -12,3 +12,9 @@
 .css-1elwnq4-MuiPaper-root-MuiAccordion-root:before{
     height: 0px;
 }
+.MyNameAvailable{
+    border:2px solid rgba(176, 236, 216, 0.557) !important;
+}
+.MarkAsCompleted{
+    background: rgba(75, 225, 5, 0.557) !important;
+}

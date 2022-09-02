@@ -22,6 +22,7 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
 
 const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
   const { user } = useContext(AuthContext);
+  var username = user;
   const [data, setData] = React.useState({
     item: "",
     price: 0,
@@ -171,7 +172,7 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                 obj.takenby.includes(individual)
               ) {
                 obj.whowillgetbywhom[individual] = [
-                  "Already paid his/her bill",
+                  individual + " Already paid his/her bill",
                 ];
               }
             }
@@ -194,9 +195,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                             ? obj.whowillgetbywhom[individual]
                             : ""),
                           individual +
-                            " Will take " +
-                            Math.abs(obj.extraspentby[temp]) +
-                            " from...." +
+                            " will take " +
+                            Math.abs(obj.extraspentby[temp]).toFixed(1) +
+                            " from " +
                             temp,
                         ];
                         obj.whowillgetbywhom[temp] = [
@@ -204,9 +205,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                             ? obj.whowillgetbywhom[temp]
                             : ""),
                           temp +
-                            " Will give " +
-                            Math.abs(obj.extraspentby[temp]) +
-                            " to...." +
+                            " will give " +
+                            Math.abs(obj.extraspentby[temp]).toFixed(1) +
+                            " to " +
                             individual,
                         ];
 
@@ -228,9 +229,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                             ? obj.whowillgetbywhom[individual]
                             : ""),
                           individual +
-                            " Will take " +
-                            Math.abs(obj.extraspentby[individual]) +
-                            " from...." +
+                            " will take " +
+                            Math.abs(obj.extraspentby[individual]).toFixed(1) +
+                            " from " +
                             temp,
                         ];
                         obj.whowillgetbywhom[temp] = [
@@ -238,9 +239,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                             ? obj.whowillgetbywhom[temp]
                             : ""),
                           temp +
-                            " Will give " +
-                            Math.abs(obj.extraspentby[individual]) +
-                            " to...." +
+                            " will give " +
+                            Math.abs(obj.extraspentby[individual]).toFixed(1) +
+                            " to " +
                             individual,
                         ];
 
@@ -260,9 +261,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                             ? obj.whowillgetbywhom[individual]
                             : ""),
                           individual +
-                            " Will take " +
-                            Math.abs(obj.extraspentby[individual]) +
-                            " from...." +
+                            " will take " +
+                            Math.abs(obj.extraspentby[individual]).toFixed(1) +
+                            " from " +
                             temp,
                         ];
                         obj.whowillgetbywhom[temp] = [
@@ -270,9 +271,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                             ? obj.whowillgetbywhom[temp]
                             : ""),
                           temp +
-                            " Will give " +
-                            Math.abs(obj.extraspentby[temp]) +
-                            " to...." +
+                            " will give " +
+                            Math.abs(obj.extraspentby[temp]).toFixed(1) +
+                            " to " +
                             individual,
                         ];
 
@@ -315,7 +316,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
           for (const individual in myfinaldata) {
             //if individual extra pay is 0 , it means individual has paid amount for him/her self
             if (myfinaldata[individual] === 0) {
-              finalresult[individual] = ["Already paid his/her bill"];
+              finalresult[individual] = [
+                individual + " Already paid his/her bill",
+              ];
             }
           }
           for (const individual in myfinaldata) {
@@ -337,9 +340,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                           ? finalresult[individual]
                           : ""),
                         individual +
-                          " Will take " +
-                          Math.abs(myfinaldata[temp]) +
-                          " from...." +
+                          " will take " +
+                          Math.abs(myfinaldata[temp]).toFixed(1) +
+                          " from " +
                           temp,
                       ];
                       finalresult[temp] = [
@@ -347,9 +350,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                           ? finalresult[temp]
                           : ""),
                         temp +
-                          " Will give " +
-                          Math.abs(myfinaldata[temp]) +
-                          " to...." +
+                          " will give " +
+                          Math.abs(myfinaldata[temp]).toFixed(1) +
+                          " to " +
                           individual,
                       ];
 
@@ -370,9 +373,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                           ? finalresult[individual]
                           : ""),
                         individual +
-                          " Will take " +
-                          Math.abs(myfinaldata[individual]) +
-                          " from...." +
+                          " will take " +
+                          Math.abs(myfinaldata[individual]).toFixed(1) +
+                          " from " +
                           temp,
                       ];
                       finalresult[temp] = [
@@ -380,9 +383,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                           ? finalresult[temp]
                           : ""),
                         temp +
-                          " Will give " +
-                          Math.abs(myfinaldata[individual]) +
-                          " to...." +
+                          " will give " +
+                          Math.abs(myfinaldata[individual]).toFixed(1) +
+                          " to " +
                           individual,
                       ];
 
@@ -402,9 +405,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                           ? finalresult[individual]
                           : ""),
                         individual +
-                          " Will take " +
-                          Math.abs(myfinaldata[individual]) +
-                          " from...." +
+                          " will take " +
+                          Math.abs(myfinaldata[individual]).toFixed(1) +
+                          " from " +
                           temp,
                       ];
                       finalresult[temp] = [
@@ -412,9 +415,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                           ? finalresult[temp]
                           : ""),
                         temp +
-                          " Will give " +
-                          Math.abs(myfinaldata[temp]) +
-                          " to...." +
+                          " will give " +
+                          Math.abs(myfinaldata[temp]).toFixed(1) +
+                          " to " +
                           individual,
                       ];
 
@@ -436,7 +439,7 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
   return (
     <div>
       <div style={{ textAlign: "center" }}>
-        <h3>Add Expenses</h3>
+        <h3>Add Expenses For {selectedgroupname.toUpperCase()}</h3>
         {/* <label>Enter Item Name:</label> */}
         <input
           className="AdduserInputBox"
@@ -475,7 +478,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
               <tbody>
                 <tr>
                   <td>
-                    <div style={{ color: "#4e4e4e" }}>{i.name}</div>
+                    <div style={{ color: "#4e4e4e" }}>
+                      {i.name.split("@")[0]}
+                    </div>
                   </td>
 
                   <td style={{ textAlign: "center" }}>
@@ -528,6 +533,12 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
+            <div style={{ textAlign: "center" }}>
+              <button className="AddUserButton">End Trip</button>
+              <p style={{ fontSize: "0.4rem", color: "grey" }}>
+                End trip to enable additional features
+              </p>
+            </div>
             <Box
               sx={{
                 display: "flex",
@@ -541,14 +552,49 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                 },
               }}
             >
+              {/* {console.log(consolidatedresult)} */}
               {Object.keys(consolidatedresult).map((user) => {
-                return consolidatedresult[user].map((data) => {
-                  return (
-                    <Paper style={{ padding: "5px" }} elevation={2}>
-                      <p className="ExpenseDetailsText">{data}</p>
-                    </Paper>
-                  );
-                });
+                return (
+                  <Paper
+                    style={{ padding: "5px", position: "relative" }}
+                    elevation={2}
+                    className={
+                      user == username.email
+                        ? consolidatedresult[user][
+                            consolidatedresult[user].length
+                          ] == "completed"
+                          ? "MarkAsCompleted"
+                          : "MyNameAvailable"
+                        : null
+                    }
+                  >
+                    <div
+                      style={{
+                        textAlign: "center",
+                        fontWeight: "bolder",
+                        color: "#504e4e",
+                        height: "33px",
+                        paddingTop: "2px",
+                      }}
+                    >
+                      {user
+                        .replaceAll(username.email, "Your")
+                        .replaceAll("@gmail.com", "")}{" "}
+                      Details
+                    </div>
+                    <Divider />
+                    {consolidatedresult[user].map((data, index) => {
+                      return (
+                        <p className="ExpenseDetailsText">
+                          {index + 1}. {data.replaceAll("@gmail.com", "")}
+                        </p>
+                      );
+                    })}
+                    {user == username.email && (
+                      <button className="MarkFinalStatus">MARK DONE</button>
+                    )}
+                  </Paper>
+                );
               })}
             </Box>
           </AccordionDetails>
@@ -565,7 +611,7 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
             id="panel2bh-header"
           >
             <Typography sx={{ width: "33%", flexShrink: 0 }}>
-              My Expense Details
+              My Item Wise Expense Details
             </Typography>
             <Typography sx={{ color: "text.secondary" }}>
               You will get completed details of yours
@@ -594,6 +640,8 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                           textAlign: "center",
                           fontWeight: "bolder",
                           color: "#504e4e",
+                          height: "33px",
+                          paddingTop: "2px",
                         }}
                       >{`Item:  ${expenselist.item}`}</div>
                       <Divider />
@@ -605,9 +653,11 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                               (whowhom) => {
                                 return (
                                   <div>
-                                    <Divider />
                                     <p className="ExpenseDetailsText">
-                                      {whowhom}
+                                      {whowhom
+                                        .replaceAll(username.email, "You")
+                                        .replaceAll("his/her", "your")
+                                        .replaceAll("@gmail.com", "")}
                                     </p>
                                   </div>
                                 );
@@ -690,7 +740,7 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                             className="ExpenseDetailsText"
                             style={{ paddingLeft: "8px" }}
                           >
-                            {whohaseaten}
+                            {whohaseaten.replaceAll("@gmail.com", "")}
                           </p>
                         );
                       })}
@@ -716,7 +766,10 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                             <div
                               className="ExpenseDetailsText"
                               style={{ paddingLeft: "8px" }}
-                            >{`${whohasspent} `}</div>
+                            >{`${whohasspent.replaceAll(
+                              "@gmail.com",
+                              ""
+                            )} `}</div>
                             <div
                               className="ExpenseDetailsText"
                               style={{ fontWeight: "bold" }}
@@ -743,7 +796,9 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                           (whowhom) => {
                             return (
                               <div>
-                                <p className="ExpenseDetailsText">{whowhom}</p>
+                                <p className="ExpenseDetailsText">
+                                  {whowhom.replaceAll("@gmail.com", "")}
+                                </p>
                               </div>
                             );
                           }

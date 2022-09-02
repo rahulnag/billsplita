@@ -139,49 +139,61 @@ const Groups = () => {
       });
   };
   return (
-    <div className="GroupContainer">
-      <div className="GroupItems GroupItem-1">
-        <p className="MyGroupPageSmallText">Select your group</p>
-        {myGroups.map((group) => {
-          return (
-            <button
-              className={`MyGroupButtons ${
-                activeTab == group ? "SelectedGroup" : null
-              }`}
-              onClick={() => {
-                setActiveTab(group);
-                fetchGroupDetails(group);
-              }}
-            >
-              {group}
-            </button>
-          );
-        })}
-        <p className="MyGroupPageSmallText">Group Admin: {createdby}</p>
-        <br />
-        <div style={{ lineHeight: "0px" }}>
-          <h4>Add users to {currentSelectedGroup}:</h4>
-          <input
-            className="AdduserInputBox"
-            onChange={(e) => setUserId(e.target.value)}
-            placeholder="Enter email to add user to group"
-          />
+    <>
+      <div
+        style={{
+          fontSize: "0.6rem",
+          textAlign: "center",
+        }}
+      >
+        Logged In as : {user.email.split("@")[0]}
+      </div>
+      <div className="GroupContainer">
+        <div className="GroupItems GroupItem-1">
+          <p className="MyGroupPageSmallText">Select your group</p>
+          {myGroups.map((group) => {
+            return (
+              <button
+                className={`MyGroupButtons ${
+                  activeTab == group ? "SelectedGroup" : null
+                }`}
+                onClick={() => {
+                  setActiveTab(group);
+                  fetchGroupDetails(group);
+                }}
+              >
+                {group}
+              </button>
+            );
+          })}
+          <p className="MyGroupPageSmallText">
+            Group Admin: {createdby.split("@")[0]}
+          </p>
           <br />
-          <button className="AddUserButton" onClick={addIndividual}>
-            Add
-          </button>
+          <div style={{ lineHeight: "0px" }}>
+            <h4>Add users to {currentSelectedGroup.toUpperCase()}:</h4>
+            <input
+              className="AdduserInputBox"
+              onChange={(e) => setUserId(e.target.value)}
+              placeholder="Enter email to add user to group"
+            />
+            <br />
+            <button className="AddUserButton" onClick={addIndividual}>
+              Add
+            </button>
+          </div>
+        </div>
+
+        <div className="GroupItems GroupItem-2">
+          {selectedGroupData !== "" ? (
+            <AddExpense
+              selectedgroupname={currentSelectedGroup}
+              selectedGroupData={selectedGroupData}
+            />
+          ) : null}
         </div>
       </div>
-
-      <div className="GroupItems GroupItem-2">
-        {selectedGroupData !== "" ? (
-          <AddExpense
-            selectedgroupname={currentSelectedGroup}
-            selectedGroupData={selectedGroupData}
-          />
-        ) : null}
-      </div>
-    </div>
+    </>
   );
 };
 

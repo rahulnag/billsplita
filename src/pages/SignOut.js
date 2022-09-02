@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { AuthContext } from "../context/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
@@ -15,9 +15,14 @@ const SignOut = () => {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    handleSignOut();
+  }, []);
   return (
     <div>
-      <button onClick={handleSignOut}>signout</button>
+      {/* <button onClick={handleSignOut}>signout</button> */}
+      <h3>Signing you out....</h3>
     </div>
   );
 };

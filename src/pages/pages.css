@@ -25,6 +25,7 @@
 .SelectedGroup{
     background-color: rgb(245, 128, 247);
 }
+
 .MyGroupButtons{
     width: 100px;
     height: 30px;
@@ -32,6 +33,13 @@
     border: 0px;
     border-radius: 20px;
     margin: 5px;
+}
+.MyGroupButtons:hover{
+    background-color: rgb(255, 255, 255);
+    border:2px solid rgb(6, 156, 210);
+}
+.SelectedGroup:hover{
+    background-color: #cc70ea85;
 }
 .MyGroupPageSmallText{
     font-size: smaller;
@@ -52,7 +60,7 @@
     width: 90px;
     height: 30px;
     outline: 0;
-    border: 0;
+    /* border: 0; */
     border-radius: 20px;
     border: 1px solid rgb(189, 189, 189);
 }
@@ -67,13 +75,16 @@
     flex-wrap: wrap;
     max-height: 100vh;
 }
+@media only screen and (min-width: 900px) {
 .GroupItems{
     height: 87vh;
 }
+}
+
+@media only screen and (min-width: 900px) {
 .GroupItem-1{
     flex: 1;
     position: sticky;
-
 }
 .GroupItem-2{
     flex:2;
@@ -81,7 +92,7 @@
     /* top: 10%; right: 0; bottom: 0; */
     /* left:0; */
     overflow-y: scroll;
-
+}
 }
 .AmountInputBox{
     height: 15px;
@@ -95,3 +106,22 @@
     outline: 0.1px solid grey;
     height:20px
   } */
+
+.MarkFinalStatus{
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: rgba(223, 230, 232, 0.345);
+    border: 1px solid rgb(189, 189, 189);
+    outline: 0;
+    border-radius: 20px;
+    font-size: 0.6rem;
+    height:20px;
+    width:90px
+}
+
+.MarkFinalStatus:hover{
+    background-color: blueviolet;
+    color: #ffffff;
+    border:2px solid #1dd939
+}
