@@ -7,6 +7,7 @@ import {
   onAuthStateChanged,
 } from "firebase/auth";
 import { auth } from "../config";
+import Loader from "../component/Loader";
 
 const AuthContext = React.createContext();
 const AuthProvider = ({ children }) => {
@@ -38,7 +39,16 @@ const AuthProvider = ({ children }) => {
       {children}
     </AuthContext.Provider>
   ) : (
-    <h1>Loading....</h1>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        textAlign: "center",
+      }}
+    >
+      <Loader />
+      <h3 className="LoadingText">Loading Application...</h3>
+    </div>
   );
 };
 

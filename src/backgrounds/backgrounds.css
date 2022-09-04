@@ -1,3 +1,7 @@
 .Home-Background{
-    background-repeat: no-repeat;
+    background:rgba(255, 255, 255, 0.717);
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.2);
+    box-shadow: rgba(31, 38, 135, 0.37) 0px 8px 32px 0px; 
+    backdrop-filter: blur(3px); 
 }

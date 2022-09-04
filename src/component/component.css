@@ -1,5 +1,5 @@
 .ExpenseDetailsText{
-    font-size: smaller;
+    font-size: 0.8rem;
 }
 
 .css-1elwnq4-MuiPaper-root-MuiAccordion-root{
@@ -11,10 +11,12 @@
 
 .css-1elwnq4-MuiPaper-root-MuiAccordion-root:before{
     height: 0px;
+    content: none;
 }
+
 .MyNameAvailable{
-    border:2px solid rgba(176, 236, 216, 0.557) !important;
+    border:2px solid rgb(249, 195, 20) !important;
 }
 .MarkAsCompleted{
-    background: rgba(75, 225, 5, 0.557) !important;
+    background: #00ff7b69 !important;
 }

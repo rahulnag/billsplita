@@ -1,4 +1,3 @@
-import logo from "./logo.svg";
 import "./App.css";
 import React, { useEffect } from "react";
 import { Home, SignOut, SignIn } from "./pages";
@@ -7,6 +6,8 @@ import AuthProvider, { AuthContext } from "./context/AuthProvider";
 import Protected from "./component/Protected";
 import Groups from "./pages/Groups";
 import { Divider } from "@mui/material";
+import logo from "./backgrounds/assets/logo.png";
+import logoTransparent from "./backgrounds/assets/logo-transparent.png";
 function App() {
   const [activeTab, setActiveTab] = React.useState(0);
   useEffect(() => {
@@ -26,6 +27,13 @@ function App() {
           }}
         >
           <div>
+            <img
+              src={logoTransparent}
+              alt="BillSplita logo"
+              height="35px"
+              // width="30px"
+              style={{ marginLeft: "3px" }}
+            />
             <Link to="/home">
               {" "}
               <button
@@ -49,7 +57,9 @@ function App() {
             <Link id="signinlink" to="/signin">
               SignIn
             </Link>
-            <Link to="/signout">Signout</Link>
+            <Link id="signoutlink" style={{ display: "none" }} to="/signout">
+              Signout
+            </Link>
           </div>
         </div>
         <Divider style={{ marginTop: "3px" }} />

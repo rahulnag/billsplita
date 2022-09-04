@@ -13,6 +13,10 @@ import Divider from "@mui/material/Divider";
 import { getDatabase, ref, set, child, get, push } from "firebase/database";
 import { db } from "../config";
 import { AuthContext } from "../context/AuthProvider";
+import ConfirmationBox from "./ConfirmationBox";
+import RefreshIcon from "@mui/icons-material/Refresh";
+import Loader, { SunspotLoaderComponent } from "./Loader";
+import MySnackbar from "./MySnackbar";
 
 const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   padding: theme.spacing(2),
@@ -20,9 +24,16 @@ const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
   background: "#f8f8f878",
 }));
 
-const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
+const AddExpense = ({
+  selectedgroupname,
+  selectedGroupData,
+  fetchGroupDetails,
+}) => {
   const { user } = useContext(AuthContext);
   var username = user;
+  const [open, setOpen] = React.useState(false); //for confirmation box
+  const [snackopen, setSnackOpen] = React.useState(false); //for snackbar open
+  const [snackmsg, setSnackMsg] = React.useState(""); //for snackbar open
   const [data, setData] = React.useState({
     item: "",
     price: 0,
@@ -42,19 +53,26 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
     Object.values(groupData?.trippartners).map((i) => {
       return {
         name: i,
-        pricespent: null,
+        pricespent: null, //always keep this default value as null
         taken: 0,
       };
     })
   );
   const [consolidatedresult, setConsolidatedResult] = React.useState([]);
 
-  //for accordian
-  // const [expanded, setExpanded] = React.useState(false);
-  const handleChange = (panel) => (event, isExpanded) => {
-    // setExpanded(isExpanded ? panel : false);
+  const [apicallingtosaveexpense, setApiCallingToSaveExpense] =
+    React.useState(false);
+
+  //for confirmation box
+  const handleClose = () => {
+    setOpen(false);
   };
-  //end for accordian
+
+  //for snackbar message
+  const handleSnackClose = () => {
+    setSnackOpen(false);
+    setSnackMsg("");
+  };
   useEffect(() => {
     setGroupData(selectedGroupData);
     setUserList(
@@ -67,8 +85,33 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
       })
     );
     GetExpeseData();
+
+    return () => {
+      resetData();
+    };
   }, [selectedGroupData]);
 
+  const resetData = () => {
+    setData({
+      item: "",
+      price: 0,
+      takenby: [], //make this also dynamic based upon who all taken that item
+      spent: {},
+      extraspentbyeach: {},
+      extraspentby: {},
+      whowillgetbywhom: {},
+    });
+
+    setUserList(
+      Object.values(groupData?.trippartners).map((i) => {
+        return {
+          name: i,
+          pricespent: null, //always keep this default value as null
+          taken: 0,
+        };
+      })
+    );
+  };
   const handleTakenInput = (e, i, index) => {
     userList[index] = { ...userList[index], taken: e.target.checked };
     setUserList(userList);
@@ -83,15 +126,26 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
   };
 
   const handleSubmit = () => {
+    setApiCallingToSaveExpense(true);
     let priceSpentByUser = 0;
+    let anyonehastakenornot = false;
     userList.map((individualUser) => {
       //1. individual price and total price check
       priceSpentByUser += Number(individualUser.pricespent);
+      anyonehastakenornot += Boolean(individualUser.taken);
     });
-    if (priceSpentByUser !== data.price) {
+    console.log(data);
+    if (data.price == "" || data.item == "") {
+      alert("Please enter the item/service name and its cost");
+      setApiCallingToSaveExpense(false); //making false because after clicking on ok of alert box, spinner is showing
+    } else if (priceSpentByUser !== data.price) {
       alert(
-        "total price and combined price of each individual is not matching..."
+        "Total price and combined price of each individual is not matching..."
       );
+      setApiCallingToSaveExpense(false);
+    } else if (anyonehastakenornot == 0) {
+      alert("None of the user has taken the item/service, please check");
+      setApiCallingToSaveExpense(false);
     } else {
       //if price is matching , then now manipulate the data.
       let tempdata = data;
@@ -124,8 +178,39 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
 
       //if we want to update a key value in firebase
       // set(ref(db, "groups/" + selectedgroupname + "/data"), JSON.stringify(data));
+
+      //setting up default value for price and item
+      setData({
+        item: "",
+        price: "",
+        takenby: [], //make this also dynamic based upon who all taken that item
+        spent: {},
+        extraspentbyeach: {},
+        extraspentby: {},
+        whowillgetbywhom: {},
+      });
+
+      //setting default value after db insertion
+      // setUserList(
+      //   Object.values(groupData?.trippartners).map((i) => {
+      //     return {
+      //       name: i,
+      //       pricespent: null,
+      //       taken: 0,
+      //     };
+      //   })
+      // );
+
+      //calling this function to recalculate based on new data set after db update
+      GetExpeseData();
+      setSnackMsg("Expense added successfully");
+      setSnackOpen(true);
+      let timeoutid = setTimeout(() => {
+        resetData();
+        setApiCallingToSaveExpense(false);
+        clearTimeout(timeoutid);
+      }, 3000);
     }
-    GetExpeseData();
   };
 
   const GetExpeseData = () => {
@@ -436,89 +521,162 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
         console.log(error);
       });
   };
+
+  const EndTrip = () => {
+    set(ref(db, "groups/" + selectedgroupname + "/tripstatus"), "completed");
+    setOpen(false);
+    console.log(consolidatedresult);
+
+    //get new set of updated data after ending trip so we are calling apis again to get complete group details
+    fetchGroupDetails(selectedgroupname);
+    setSnackMsg("Trip successfully ended");
+    setSnackOpen(true);
+  };
+
+  const MarkMeDone = () => {
+    console.log(".....");
+    //now we will save consolidatedresult to firebase for current user on click on mark done button
+    set(
+      ref(
+        db,
+        "groups/" +
+          selectedgroupname +
+          "/consolidatedresultstatus/" +
+          username.email.replaceAll("@gmail.com", "").replaceAll(".", "_")
+      ),
+      "completed"
+    );
+    //get new set of updated data after ending trip so we are calling apis again to get complete group details
+    fetchGroupDetails(selectedgroupname);
+  };
   return (
     <div>
-      <div style={{ textAlign: "center" }}>
-        <h3>Add Expenses For {selectedgroupname.toUpperCase()}</h3>
-        {/* <label>Enter Item Name:</label> */}
-        <input
-          className="AdduserInputBox"
-          type="string"
-          onChange={(e) => setData({ ...data, item: e.target.value })}
-          placeholder="Enter item name"
-        />{" "}
-        {/* <label>Enter Item Price:</label> */}
-        <input
-          className="AdduserInputBox"
-          type="number"
-          onChange={(e) => setData({ ...data, price: Number(e.target.value) })}
-          placeholder="Enter item price"
-        />
-        <table
-          style={{
-            border: "1px solid lightgrey",
-            marginTop: "8px",
-            borderRadius: "8px",
-            width: "97%",
-          }}
-        >
-          <thead>
-            <tr>
-              <th style={{ borderBottom: "1px solid lightgrey" }}>Friends</th>
-              <th style={{ borderBottom: "1px solid lightgrey" }}>
-                Taken above item ?
-              </th>
-              <th style={{ borderBottom: "1px solid lightgrey" }}>
-                Amount contributed
-              </th>
-            </tr>
-          </thead>
-          {userList.map((i, index) => {
-            return (
-              <tbody>
+      <ConfirmationBox
+        open={open}
+        setOpen={setOpen}
+        handleClose={handleClose}
+        EndTrip={EndTrip}
+      />
+      <MySnackbar
+        open={snackopen}
+        msg={snackmsg}
+        handleClose={handleSnackClose}
+      />
+
+      {selectedGroupData.tripstatus !== "completed" ? (
+        apicallingtosaveexpense !== true ? (
+          <div style={{ textAlign: "center" }}>
+            <h3>Add Expenses For {selectedgroupname.toUpperCase()}</h3>
+            {/* <label>Enter Item Name:</label> */}
+            <input
+              value={data.item}
+              className="AdduserInputBox"
+              type="string"
+              onChange={(e) => setData({ ...data, item: e.target.value })}
+              placeholder="Enter item/service name"
+            />{" "}
+            {/* <label>Enter Item Price:</label> */}
+            <input
+              // value={data.price}
+              className="AdduserInputBox"
+              type="number"
+              min="0"
+              onChange={(e) =>
+                setData({ ...data, price: Number(e.target.value) })
+              }
+              placeholder="Enter item/service total price"
+            />
+            <table
+              style={{
+                border: "1px solid lightgrey",
+                marginTop: "8px",
+                borderRadius: "8px",
+                width: "97%",
+                background: "#ffffff",
+              }}
+            >
+              <thead>
                 <tr>
-                  <td>
-                    <div style={{ color: "#4e4e4e" }}>
-                      {i.name.split("@")[0]}
-                    </div>
-                  </td>
-
-                  <td style={{ textAlign: "center" }}>
-                    <div>
-                      <input
-                        type="checkbox"
-                        onClick={(e) => handleTakenInput(e, i, index)}
-                      />
-                    </div>
-                  </td>
-                  <td>
-                    <div>
-                      <input
-                        className="AmountInputBox"
-                        type="number"
-                        onChange={(e) => handleAmountGivenInput(e, i, index)}
-                        placeholder="Amount"
-                      />
-                    </div>
-                  </td>
+                  <th style={{ borderBottom: "1px solid lightgrey" }}>
+                    Friends
+                  </th>
+                  <th style={{ borderBottom: "1px solid lightgrey" }}>
+                    Taken above item ?
+                  </th>
+                  <th style={{ borderBottom: "1px solid lightgrey" }}>
+                    Amount contributed
+                  </th>
                 </tr>
-              </tbody>
-            );
-          })}
-        </table>
-        <br />
-        <button className="AddUserButton" onClick={handleSubmit}>
-          SAVE
-        </button>
-      </div>
+              </thead>
+              {userList.map((i, index) => {
+                return (
+                  <tbody>
+                    <tr>
+                      <td>
+                        <div style={{ color: "#4e4e4e" }}>
+                          {i.name.split("@")[0]}
+                        </div>
+                      </td>
 
+                      <td style={{ textAlign: "center" }}>
+                        <div>
+                          <input
+                            type="checkbox"
+                            onClick={(e) => handleTakenInput(e, i, index)}
+                          />
+                        </div>
+                      </td>
+                      <td>
+                        <div>
+                          <input
+                            min="0"
+                            className="AmountInputBox"
+                            type="number"
+                            onChange={(e) =>
+                              handleAmountGivenInput(e, i, index)
+                            }
+                            placeholder="Amount"
+                          />
+                        </div>
+                      </td>
+                    </tr>
+                  </tbody>
+                );
+              })}
+            </table>
+            <br />
+            <button className="AddUserButton" onClick={handleSubmit}>
+              Save
+            </button>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              textAlign: "center",
+            }}
+          >
+            <Loader />
+          </div>
+        )
+      ) : null}
+      {/* {console.log(selectedGroupData)} */}
       <p
-        style={{ textAlign: "center", color: "#4e4e4e" }}
+        style={{ textAlign: "center", color: "#4e4e4e", fontWeight: "bold" }}
       >{`${selectedgroupname.toUpperCase()} Expense Details`}</p>
+      <RefreshIcon
+        color="primary"
+        onClick={() => fetchGroupDetails(selectedgroupname)}
+      ></RefreshIcon>
+      <span style={{ fontSize: "0.6rem", color: "rgba(11, 52, 201);" }}>
+        Refresh
+      </span>
+
       <div style={{ padding: "0 20px 0 20px" }}>
         <Accordion
-          // expanded={expanded === "panel1"}
-          onChange={handleChange("panel1")}
+        // expanded={expanded === "panel1"}
+        // onChange={handleChange("panel1")}
         >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -526,18 +684,31 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
             id="panel1bh-header"
           >
             <Typography sx={{ width: "33%", flexShrink: 0 }}>
-              Consolidated Result
+              {selectedgroupname.toUpperCase()} Consolidated Result
             </Typography>
             <Typography sx={{ color: "text.secondary" }}>
-              You will get details of how much you have to pay or get
+              Details of how much you/others have to pay or get in total
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
             <div style={{ textAlign: "center" }}>
-              <button className="AddUserButton">End Trip</button>
-              <p style={{ fontSize: "0.4rem", color: "grey" }}>
-                End trip to enable additional features
-              </p>
+              {selectedGroupData.tripstatus !== "completed" && (
+                <>
+                  {/* <button
+                    className="AddUserButton"
+                    onClick={() => setOpen(true)}
+                    disabled={
+                      selectedGroupData.createdby_email !== username.email
+                    }
+                  >
+                    End Trip
+                  </button> */}
+                  <p style={{ fontSize: "0.6rem", color: "darkgrey" }}>
+                    End trip to enable additional features like mark pending
+                    expenses as completed (only admin can end)
+                  </p>{" "}
+                </>
+              )}
             </div>
             <Box
               sx={{
@@ -547,24 +718,30 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                 wordWrap: "break-word",
                 "& > :not(style)": {
                   m: 1,
-                  width: 328,
+                  width: 300,
                   height: 128,
                 },
               }}
             >
-              {/* {console.log(consolidatedresult)} */}
               {Object.keys(consolidatedresult).map((user) => {
                 return (
                   <Paper
-                    style={{ padding: "5px", position: "relative" }}
-                    elevation={2}
+                    style={{
+                      padding: "5px",
+                      position: "relative",
+                      minHeight: "150px",
+                      background: "rgb(234 140 255 / 30%)",
+                    }}
+                    elevation={7}
                     className={
-                      user == username.email
-                        ? consolidatedresult[user][
-                            consolidatedresult[user].length
-                          ] == "completed"
-                          ? "MarkAsCompleted"
-                          : "MyNameAvailable"
+                      selectedGroupData?.consolidatedresultstatus[
+                        user.replaceAll("@gmail.com", "").replaceAll(".", "_")
+                      ] == "completed"
+                        ? user == username.email
+                          ? "MyNameAvailable MarkAsCompleted"
+                          : "MarkAsCompleted"
+                        : user == username.email
+                        ? "MyNameAvailable"
                         : null
                     }
                   >
@@ -586,12 +763,47 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                     {consolidatedresult[user].map((data, index) => {
                       return (
                         <p className="ExpenseDetailsText">
-                          {index + 1}. {data.replaceAll("@gmail.com", "")}
+                          {index + 1}.{" "}
+                          {data
+                            .replaceAll(username.email, "You")
+                            .replaceAll("his/her", "")
+                            .replaceAll("@gmail.com", "")}
                         </p>
                       );
                     })}
-                    {user == username.email && (
-                      <button className="MarkFinalStatus">MARK DONE</button>
+                    {selectedGroupData?.consolidatedresultstatus[
+                      user.replaceAll("@gmail.com", "").replaceAll(".", "_")
+                    ] == "completed" ? (
+                      <button disabled className="MarkFinalStatus">
+                        COMPLETED
+                      </button>
+                    ) : (
+                      user == username.email && (
+                        <button
+                          className="MarkFinalStatus"
+                          disabled={
+                            selectedGroupData.tripstatus !== "completed"
+                          }
+                          onClick={() => {
+                            if (
+                              selectedGroupData?.consolidatedresultstatus[
+                                username.email
+                                  .replaceAll("@gmail.com", "")
+                                  .replaceAll(".", "_")
+                              ] !== "completed"
+                            )
+                              MarkMeDone();
+                          }}
+                        >
+                          {selectedGroupData?.consolidatedresultstatus[
+                            username.email
+                              .replaceAll("@gmail.com", "")
+                              .replaceAll(".", "_")
+                          ] == "completed"
+                            ? "PAID"
+                            : "MARK PAID"}
+                        </button>
+                      )
                     )}
                   </Paper>
                 );
@@ -602,8 +814,8 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
 
         {/* <button onClick={GetExpeseData}>REFRESH MY DETAILS...</button> */}
         <Accordion
-          // expanded={expanded === "panel2"}
-          onChange={handleChange("panel2")}
+        // expanded={expanded === "panel2"}
+        // onChange={handleChange("panel2")}
         >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -611,10 +823,10 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
             id="panel2bh-header"
           >
             <Typography sx={{ width: "33%", flexShrink: 0 }}>
-              My Item Wise Expense Details
+              My Item/Service Wise Expense Details
             </Typography>
             <Typography sx={{ color: "text.secondary" }}>
-              You will get completed details of yours
+              Get complete details of your item/service wise expense
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -626,7 +838,7 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                 wordWrap: "break-word",
                 "& > :not(style)": {
                   m: 1,
-                  width: 328,
+                  width: 300,
                   // height: 128,
                 },
               }}
@@ -634,7 +846,14 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
               {finalExpenseCalculation.length > 0 ? (
                 finalExpenseCalculation.map((expenselist) => {
                   return (
-                    <Paper style={{ padding: "0 5px 5px 5px" }} elevation={2}>
+                    <Paper
+                      style={{
+                        padding: "0 5px 5px 5px",
+                        minHeight: "150px",
+                        background: "rgb(140 255 234 / 30%)",
+                      }}
+                      elevation={7}
+                    >
                       <div
                         style={{
                           textAlign: "center",
@@ -650,13 +869,14 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                         //this condition because not all user will be present in expenselist.whowillgetbywhom[user.email]
                         expenselist.whowillgetbywhom[user.email] !== undefined
                           ? expenselist.whowillgetbywhom[user.email].map(
-                              (whowhom) => {
+                              (whowhom, index) => {
                                 return (
                                   <div>
                                     <p className="ExpenseDetailsText">
+                                      {index + 1}.{" "}
                                       {whowhom
                                         .replaceAll(username.email, "You")
-                                        .replaceAll("his/her", "your")
+                                        .replaceAll("his/her", "")
                                         .replaceAll("@gmail.com", "")}
                                     </p>
                                   </div>
@@ -669,15 +889,23 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                   );
                 })
               ) : (
-                <h2>Loading...</h2>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    textAlign: "center",
+                  }}
+                >
+                  <Loader />
+                </div>
               )}
             </Box>
           </AccordionDetails>
         </Accordion>
 
         <Accordion
-          // expanded={expanded === "panel3"}
-          onChange={handleChange("panel3")}
+        // expanded={expanded === "panel3"}
+        // onChange={handleChange("panel3")}
         >
           <AccordionSummary
             expandIcon={<ExpandMoreIcon />}
@@ -685,10 +913,10 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
             id="panel3bh-header"
           >
             <Typography sx={{ width: "33%", flexShrink: 0 }}>
-              Group Complete Details
+              {selectedgroupname.toUpperCase()} Complete Details
             </Typography>
             <Typography sx={{ color: "text.secondary" }}>
-              You will get details of how much you have to pay or get
+              Complete / Detailed view of expense(splitted) per item/service
             </Typography>
           </AccordionSummary>
           <AccordionDetails>
@@ -700,7 +928,7 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                 wordWrap: "break-word",
                 "& > :not(style)": {
                   m: 1,
-                  width: 328,
+                  width: 300,
                   // height: 128,
                 },
               }}
@@ -708,7 +936,14 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
               {finalExpenseCalculation.length > 0 ? (
                 finalExpenseCalculation.map((expenselist) => {
                   return (
-                    <Paper style={{ padding: "0 5px 5px 5px" }} elevation={2}>
+                    <Paper
+                      style={{
+                        padding: "0 5px 5px 5px",
+                        minHeight: "150px",
+                        background: "rgb(243 243 169 / 30%)",
+                      }}
+                      elevation={7}
+                    >
                       <div
                         style={{
                           height: "35px",
@@ -734,13 +969,16 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                       >
                         who has eaten
                       </p>
-                      {expenselist.takenby.map((whohaseaten) => {
+                      {expenselist.takenby.map((whohaseaten, index) => {
                         return (
                           <p
                             className="ExpenseDetailsText"
                             style={{ paddingLeft: "8px" }}
                           >
-                            {whohaseaten.replaceAll("@gmail.com", "")}
+                            {index + 1}.{" "}
+                            {whohaseaten
+                              .replaceAll(username.email, "You")
+                              .replaceAll("@gmail.com", "")}
                           </p>
                         );
                       })}
@@ -754,33 +992,35 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                       >
                         who has spent how much
                       </p>
-                      {Object.keys(expenselist.spent).map((whohasspent) => {
-                        return (
-                          <div
-                            style={{
-                              display: "flex",
-                              justifyContent: "space-between",
-                              flexWrap: "nowrap",
-                            }}
-                          >
+                      {Object.keys(expenselist.spent).map(
+                        (whohasspent, index) => {
+                          return (
                             <div
-                              className="ExpenseDetailsText"
-                              style={{ paddingLeft: "8px" }}
-                            >{`${whohasspent.replaceAll(
-                              "@gmail.com",
-                              ""
-                            )} `}</div>
-                            <div
-                              className="ExpenseDetailsText"
-                              style={{ fontWeight: "bold" }}
-                            >{`${
-                              expenselist.spent[whohasspent] !== null
-                                ? expenselist.spent[whohasspent]
-                                : "NA"
-                            }`}</div>
-                          </div>
-                        );
-                      })}
+                              style={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                flexWrap: "nowrap",
+                              }}
+                            >
+                              <div
+                                className="ExpenseDetailsText"
+                                style={{ paddingLeft: "8px" }}
+                              >
+                                {index + 1}.{" "}
+                                {`${whohasspent.replaceAll("@gmail.com", "")} `}
+                              </div>
+                              <div
+                                className="ExpenseDetailsText"
+                                style={{ fontWeight: "bold" }}
+                              >{`${
+                                expenselist.spent[whohasspent] !== null
+                                  ? expenselist.spent[whohasspent]
+                                  : "NA"
+                              }`}</div>
+                            </div>
+                          );
+                        }
+                      )}
                       <Divider />
                       <p
                         style={{
@@ -793,11 +1033,18 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                       </p>
                       {Object.keys(expenselist.whowillgetbywhom).map((o) => {
                         return expenselist.whowillgetbywhom[o].map(
-                          (whowhom) => {
+                          (whowhom, index) => {
                             return (
                               <div>
-                                <p className="ExpenseDetailsText">
-                                  {whowhom.replaceAll("@gmail.com", "")}
+                                <p
+                                  className="ExpenseDetailsText"
+                                  style={{ paddingLeft: "8px" }}
+                                >
+                                  {index + 1}.{" "}
+                                  {whowhom
+                                    .replaceAll(username.email, "You")
+                                    .replaceAll("@gmail.com", "")
+                                    .replaceAll("his/her", "")}
                                 </p>
                               </div>
                             );
@@ -808,11 +1055,37 @@ const AddExpense = ({ selectedgroupname, selectedGroupData }) => {
                   );
                 })
               ) : (
-                <h2>Loading...</h2>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    textAlign: "center",
+                  }}
+                >
+                  <Loader />
+                </div>
               )}
             </Box>
           </AccordionDetails>
         </Accordion>
+
+        <div style={{ textAlign: "center", height: "90px" }}>
+          {selectedGroupData.tripstatus !== "completed" && (
+            <>
+              <button
+                className="EndTripButton"
+                onClick={() => setOpen(true)}
+                disabled={selectedGroupData.createdby_email !== username.email}
+              >
+                End Trip
+              </button>
+              <p style={{ fontSize: "0.6rem", color: "black" }}>
+                End trip to enable additional features like mark pending
+                expenses as completed (only admin can end)
+              </p>{" "}
+            </>
+          )}
+        </div>
       </div>
       {/* <button onClick={GetExpeseData}>REFRESH MY DETAILS...</button> */}
     </div>

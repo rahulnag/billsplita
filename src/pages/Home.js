@@ -16,7 +16,7 @@ const Home = () => {
       get(child(dbRef, `groups/${groupname}`))
         .then((snapshot) => {
           if (snapshot.exists()) {
-            alert("group already avaiklable");
+            alert("group already available");
           } else {
             // console.log("No data available");
             //creating group/groupname node
@@ -24,6 +24,7 @@ const Home = () => {
               createdby_name: user.displayName,
               createdby_email: user.email,
               data: "",
+              consolidatedresultstatus: "{}",
             });
 
             const postListRef_group = ref(
@@ -41,7 +42,7 @@ const Home = () => {
             );
             const newPostRef = push(postListRef);
             set(newPostRef, groupname);
-            setGroupName(null); //this will not clear the data
+            // setGroupName(null); //this will not clear the data
             setGroupName("");
             setOpen(true);
           }
@@ -58,22 +59,36 @@ const Home = () => {
 
   return (
     <div
-      style={{ textAlign: "center", height: "85vh" }}
-      className="Home-Background"
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
     >
-      <h1>{`Welcome ${user.email.split("@")[0]} To BillSplita`}</h1>
-      <input
-        className="GroupNameInputBox"
-        defaultValue=""
-        value={groupname}
-        onChange={(e) => setGroupName(e.target.value)}
-        placeholder="Enter group / trip name"
-      />
-      <br />
-      <button className="CreateGroupButton" onClick={CreateGroup}>
-        CREATE GROUP
-      </button>
-      <MySnackbar open={open} msg="Group Created" handleClose={handleClose} />
+      <div
+        style={{
+          textAlign: "center",
+          height: "45vh",
+          // width: "60%",
+          marginTop: "40px",
+          padding: "20px",
+        }}
+        className="Home-Background"
+      >
+        <h1>{`Welcome ${user.email.split("@")[0]} To BillSplita`}</h1>
+        <input
+          className="GroupNameInputBox"
+          defaultValue=""
+          value={groupname}
+          onChange={(e) => setGroupName(e.target.value)}
+          placeholder="Enter group / trip name"
+        />
+        <br />
+        <button className="CreateGroupButton" onClick={CreateGroup}>
+          CREATE GROUP
+        </button>
+        <MySnackbar open={open} msg="Group Created" handleClose={handleClose} />
+      </div>
     </div>
   );
 };

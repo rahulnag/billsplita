@@ -2,6 +2,26 @@ body{
     margin: 0px;
     padding: 0px;
     box-sizing: border-box;
-    font-family: cursive
-    /* font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; */
+    /* font-family: cursive */
+    font-family: 'Nunito', sans-serif;
+    background-color: #c9c4e033;
+    background-image: url('../src/backgrounds/assets/people-raising-money.png');
+    backdrop-filter: blur(0.5px);
+    background-repeat: no-repeat;
+    background-size: 100% 110%;
+    background-attachment: fixed;
+}
+/* less than 900 */
+@media only screen and (max-width: 1000px){
+    body{
+    background-image: url('../src/backgrounds/assets/people-raising-money-small.png');
+    background-attachment: fixed;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: 10px 5pc;
+    }
+}
+
+button p a{
+    font-family: 'Nunito' !important;
 }
